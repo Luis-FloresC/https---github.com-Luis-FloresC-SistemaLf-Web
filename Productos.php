@@ -9,7 +9,7 @@
    $accion = (isset($_POST['accion']))?$_POST['accion']:"";
    $txtId =  (isset($_POST['txtId']))?$_POST['txtId']:"";
   
-   
+   echo $txtId;
    include "ConexionMySql/conexion.php";
   
 
@@ -21,11 +21,26 @@
 		   $Sentencia->bindParam(':cantidad',$existencia);
 		   $Sentencia->bindParam(':precio',$precio);
 		   $Sentencia->execute();
-		   $var = "Producto Registrado con exito";
+		   $var = "Producto Registrado con éxito";
 		   echo "<script> alert('".$var."'); </script>";
 		   break;
 	   case 'Modificar':
-		   echo "Boton Modificar <br>";
+		try
+		{
+		
+		    if($_POST)
+			{
+				$var = "Producto Modificado con exito";
+				echo "<script> alert('".$var."'); </script>";
+			}
+		
+			
+		}
+		catch (Exception $ex)
+		 {
+			echo $ex->getMessage();
+		 }
+				
 		   break;
 	   case 'Eliminar':
                 $query = $conexion->prepare("DELETE FROM productos WHERE idProducto = (:id)");
@@ -117,7 +132,7 @@
 						<form class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
 					<div class="form-row">
 					<div class="col-md-4 mb-3">
-					<label for="nombreProducto">Nombre del Producto</label>
+					<label for="txtNombre">Nombre del Producto</label>
 					<input type="text" class="form-control" name="txtNombre" value="<?php echo $txtNombre; ?>" id="nombreProducto" placeholder="Nombre del Producto" required>
 					<div class="valid-feedback">
 					¡Se ve bien!
