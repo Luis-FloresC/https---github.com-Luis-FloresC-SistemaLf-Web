@@ -7,12 +7,12 @@
    $precio = (isset($_POST['txtPrecio']))?$_POST['txtPrecio']:"";
    $existencia = (isset($_POST['txtExistencia']))?$_POST['txtExistencia']:"";
    $accion = (isset($_POST['accion']))?$_POST['accion']:"";
-   $txtId =  (isset($_POST['txtId']))?$_POST['txtId']:"";
+   $txtId =  (isset($_POST['idP']))?$_POST['idP']:"";
   
-   echo $txtId;
+  
    include "ConexionMySql/conexion.php";
   
-
+   
    switch ($accion) {
 	   case 'Agregar':
 		   $Sentencia = $conexion->prepare("INSERT INTO `systemlf`.`productos`(`NombreProducto`,`IdCategoria`,`Existencia`,`Precio`) VALUES(:nombre,:categoria,:cantidad,:precio);");
@@ -20,27 +20,23 @@
 		   $Sentencia->bindParam(':categoria',$idCategoria);
 		   $Sentencia->bindParam(':cantidad',$existencia);
 		   $Sentencia->bindParam(':precio',$precio);
-		   $Sentencia->execute();
-		   $var = "Producto Registrado con éxito";
-		   echo "<script> alert('".$var."'); </script>";
+		   if($Sentencia->execute())
+		   {
+			 $var = "Nuevo registro creado con éxito";
+			 echo "<script> alert('".$var."'); </script>";
+		   }
+		 
 		   break;
 	   case 'Modificar':
-		try
+	
+		$Sentencia = $conexion->prepare("CALL `ModificarProductos`('$txtId', '$txtNombre', '$idCategoria', '$precio', '$existencia');");
+		
+		if($Sentencia->execute())
 		{
-		
-		    if($_POST)
-			{
-				$var = "Producto Modificado con exito";
-				echo "<script> alert('".$var."'); </script>";
-			}
-		
-			
+		  $var = "Nuevo registro modiifcado con éxito";
+		  echo "<script> alert('".$var."'); </script>";
 		}
-		catch (Exception $ex)
-		 {
-			echo $ex->getMessage();
-		 }
-				
+		
 		   break;
 	   case 'Eliminar':
                 $query = $conexion->prepare("DELETE FROM productos WHERE idProducto = (:id)");
@@ -58,7 +54,7 @@
 					$Seleccion->bindParam(':id',$txtId);
 					$Seleccion->execute();
 					$productoSeleccionado= $Seleccion->fetch(PDO::FETCH_LAZY);
-
+                    
 					$txtNombre = $productoSeleccionado['NombreProducto'];
 					$categoria = $productoSeleccionado['categoria'];
 					$txtExistencia = $productoSeleccionado['Existencia'];
@@ -129,7 +125,8 @@
 			 <br><h2>Registrar nuevo Producto</h2> <br>
 		 </div>
 		 <div class="card-body">
-						<form class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
+					<form class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
+					<input type="hidden" name="idP" value="<?php echo $txtId; ?>">
 					<div class="form-row">
 					<div class="col-md-4 mb-3">
 					<label for="txtNombre">Nombre del Producto</label>
@@ -245,7 +242,7 @@
 							</td>
 							<td>
 								<form method="post">
-									<input type="hidden" name="txtId" value="<?php echo $var['idProducto']; ?>">
+									<input type="hidden" name="idP" value="<?php echo $var['idProducto']; ?>">
 									<button  name="accion" value="Seleccionar" type="submit" class="btn btn-primary">Seleccionar</button>  &nbsp;
 									<button  type="submit" name="accion" value="Eliminar" class="btn btn-danger">Eliminar</button> 
 								</form>
